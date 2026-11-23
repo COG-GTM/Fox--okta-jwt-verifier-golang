@@ -117,7 +117,7 @@ func Test_can_validate_cid(t *testing.T) {
 
 	jv := jvs.New()
 
-	err := jv.validateNonce("test")
+	err := jv.validateClientId("test")
 	if err == nil {
 		t.Errorf("the cid validation did not trigger an error")
 	}
@@ -351,6 +351,11 @@ func Test_an_access_token_header_that_is_not_rs256_throws_an_error(t *testing.T)
 }
 
 func Test_a_successful_authentication_can_have_its_tokens_parsed(t *testing.T) {
+	// ParseEnvironment calls os.Exit when credentials are missing, which would abort the whole test binary.
+	if _, err := os.Stat(".env"); os.IsNotExist(err) && (os.Getenv("ISSUER") == "" || os.Getenv("CLIENT_ID") == "") {
+		t.Skip("appears that environment variables are not set, skipping the integration test for now")
+	}
+
 	utils.ParseEnvironment()
 
 	if os.Getenv("ISSUER") == "" || os.Getenv("CLIENT_ID") == "" {
