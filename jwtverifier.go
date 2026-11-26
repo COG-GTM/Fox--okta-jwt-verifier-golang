@@ -36,6 +36,7 @@ import (
 
 var metaDataCache *cache.Cache = cache.New(5*time.Minute, 10*time.Minute)
 var metaDataMu = &sync.Mutex{}
+var jwtRegex = regexp.MustCompile(`[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.?([a-zA-Z0-9-_]+)[/a-zA-Z0-9-_]+?$`).MatchString
 
 type JwtVerifier struct {
 	Issuer string
@@ -264,7 +265,6 @@ func (j *JwtVerifier) isValidJwt(jwt string) (bool, error) {
 	}
 
 	// Verify that the JWT contains at least one period ('.') character.
-	var jwtRegex = regexp.MustCompile(`[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.?([a-zA-Z0-9-_]+)[/a-zA-Z0-9-_]+?$`).MatchString
 	if !jwtRegex(jwt) {
 		return false, fmt.Errorf("token must contain at least 1 period ('.') and only characters 'a-Z 0-9 _'")
 	}
